@@ -1,0 +1,37 @@
+{
+  "bindings": [
+    {
+      "members": [
+        "projectEditor:itmayziii",
+        "projectOwner:itmayziii"
+      ],
+      "role": "roles/storage.legacyBucketOwner"
+    },
+    {
+      "members": [
+        "projectViewer:itmayziii"
+      ],
+      "role": "roles/storage.legacyBucketReader"
+    },
+    {
+      "members": [
+        "projectEditor:itmayziii",
+        "projectOwner:itmayziii"
+      ],
+      "role": "roles/storage.legacyObjectOwner"
+    },
+    {
+      "members": [
+        "projectViewer:itmayziii"
+      ],
+      "role": "roles/storage.legacyObjectReader"
+    },
+    {
+      "members": [
+        "allUsers"
+      ],
+      "role": "roles/storage.objectViewer"
+    }
+  ],
+  "etag": "CAE="
+}
