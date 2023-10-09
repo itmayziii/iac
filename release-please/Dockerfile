@@ -4,9 +4,7 @@ WORKDIR /home/node/app
 
 ENV NODE_ENV=production
 
-COPY package*.json ./
-
-RUN npm ci
+RUN npm install -g release-please
 
 USER node
 

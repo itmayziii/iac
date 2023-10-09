@@ -3,45 +3,53 @@ It feels overly complex to be using a tool like terraform for my personal infras
 Instead, this repository will host [gcloud][gcloud] commands that I used during setup. This way there is at least _some_
 record of what I did.
 
-## [email function][email-func]
-_Example deploy script with [gcloud CLI][gcloud] to deploy as a Cloud Function._
+## Dead Letter Logger
+
+_Create dead letter pub/sub topic_
 ```shell
-PROJECT_ID="itmayziii"
-REGION="us-central1"
-FUNCTION_SA="app-email-func@itmayziii.iam.gserviceaccount.com"
-RUN_SA="app-email-func@itmayziii.iam.gserviceaccount.com"
-TRIGGER_SA="eventarc-trigger@itmayziii.iam.gserviceaccount.com"
-# Pub/sub topic will need created separately.
-TOPIC="send-email"
-VERSION="v1_0_0"
-APP=email
+PROJECT_ID="itmayziii"; gcloud pubsub topics create dead-letter --project="$PROJECT_ID" --labels="managed_by=manual"
 ```
+
+_Create SA for app to use_
+```shell
+PROJECT_ID="itmayziii" gcloud iam service-accounts create app-log-func --project="$PROJECT_ID" --display-name="Application log-func" --description="Dedicated application service account for log-func Cloud Function"
+```
+
+## [email function][email-func]
 
 _Create pub/sub topic_
 ```shell
-gcloud pubsub topics create send-email --labels="managed_by=manual,app=email"
+PROJECT_ID="itmayziii"; gcloud pubsub topics create send-email --project="$PROJECT_ID" --labels="managed_by=manual,app=email"
 ```
 
-_Deploy cloud function_
+_Create bucket to store email templates_
 ```shell
-gcloud functions deploy SendEmail \
-  --project="$PROJECT_ID"
-  --gen2 \
-  --trigger-topic="$TOPIC" \
-  --runtime="go121" \
-  --entry-point="SendEmail" \
-  --region="$REGION" \
-  --source="." \
-  --ingress-settings="internal-only" \
-  --no-allow-unauthenticated \
-  --retry \
-  --trigger-service-account="$TRIGGER_SA" \
-  --run-service-account="$RUN_SA" \
-  --service-account="$FUNCTION_SA" \
-  --set-secrets="MG_API_KEY_MG_TOMMYMAY_DEV=mailgun-api-key-mg-tommymay-dev:latest" \
-  --set-env-vars="PROJECT_ID=$PROJECT_ID,BUCKET=gs://itmayziii-email-templates" \
-  --clear-labels \
-  --update-labels="managed_by=manual,version=$VERSION"
+gcloud storage buckets create gs://itmayziii-email-templates \
+  --project="$PROJECT_ID" \
+  --location="us" \
+  --default-storage-class="standard" \
+  --uniform-bucket-level-access \
+  --public-access-prevention
+```
+
+_Set labels on bucket_
+```shell
+gsutil label ch -l "managed_by:manual" -l "app:email" gs://itmayziii-email-templates
+```
+
+_Enable versioning for bucket_
+```shell
+gsutil versioning set on gs://itmayziii-email-templates
+```
+
+_Enable lifecycle rules for bucket_
+```shell
+gsutil lifecycle set itmayziii-email-templates-gcs-lifecycle.json gs://itmayziii-email-templates
+```
+
+_Set IAM permissions for email templates storage bucket._
+```shell
+gsutil lifecycle set itmayziii-email-templates-gcs-iam.json gs://itmayziii-email-templates
 ```
 
 ## [email Package][email-package]

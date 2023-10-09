@@ -28,7 +28,7 @@
     },
     {
       "members": [
-        "allUsers"
+        "serviceAccount:app-email-func@itmayziii.iam.gserviceaccount.com"
       ],
       "role": "roles/storage.objectViewer"
     }
