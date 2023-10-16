@@ -1,0 +1,8 @@
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+metadata:
+  name: production-cloud-run-us-central1
+description: Production cloud run target for us-central1 region.
+requireApproval: false
+run:
+  location: projects/itmayziii/locations/us-central1
